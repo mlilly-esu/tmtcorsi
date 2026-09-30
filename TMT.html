@@ -330,7 +330,7 @@ function shuffle(array) {
         }
     };
 
-    var fullScreen = {
+    var fullscreenTrial = {
         type: 'fullscreen',
         fullscreen_mode: true,
         message: '<p>El experimento ira a pantalla completa cuando usted presione el boton que se encuentra debajo</p><br>',
@@ -443,20 +443,12 @@ function shuffle(array) {
         };
 
   
-    console.log('DEBUG images.length =', images.length);
-    console.log('DEBUG timelineVariables.length =', timelineVariables.length);
-    console.log('DEBUG timelineVariables[0] =', JSON.stringify(timelineVariables[0]));
-    console.log('DEBUG trial.timeline.length =', trial.timeline.length);
-    console.log('DEBUG trial.timeline[0].type =', trial.timeline[0] && trial.timeline[0].type);
-    console.log('DEBUG fullScreen.type =', fullScreen.type);
-    console.log('DEBUG greetings.type =', greetings.type);
-
     jsPsych.init({
         
         // timeline: [welcome_block,fullScreen,resize_trial, chin,instrucciones_posta,trial,greetings],
         // timeline: [fullScreen, resize_trial, chin, instruction, trial, greetings],
         // timeline: [chin, welcome_block, greetings],
-        timeline: [fullScreen, trial, greetings],
+        timeline: [fullscreenTrial, trial, greetings],
 
         
         on_interaction_data_update: function(data) {
