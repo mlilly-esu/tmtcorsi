@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- character encoding -->
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <!-- Title of the window -->
+        <title>Corsi Block Task</title>
+        <!-- declaring the special functions needed -->
+        <!-- note that jspsych-html-keyboard-response-noerase.js IS NOT part of the standard bundle -->
+        <script src="corsi-lib/jspsych.js"></script>
+        <script src="corsi-lib/plugins/jspsych-html-keyboard-response-noerase.js"></script>
+        <script src="corsi-lib/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="corsi-lib/plugins/jspsych-audio-button-response.js"></script>
+        <script src="corsi-lib/plugins/jspsych-audio-keyboard-response.js"></script>
+        <script src="corsi-lib/plugins/jspsych-html-button-response.js"></script>
+        <script src="corsi-lib/plugins/jspsych-fullscreen.js"></script>
+        <script src="corsi-lib/plugins/jspsych-call-function.js"></script>
+        <!-- uploading the style sheet -->
+        <link href="corsi-lib/css/jspsych.css" rel="stylesheet" type="text/css">
+    </head>
+
+    <body>
+        <script>
+            console.log('Beginning of the definitions')
+
+            // ****************************************************
+            // Prolific / study ID capture (from URL parameters)
+            // ****************************************************
+            var urlParams = new URLSearchParams(window.location.search);
+            var prolific_pid = urlParams.get('PROLIFIC_PID') || 'unknown';
+            var study_id = urlParams.get('STUDY_ID') || 'unknown';
+            var session_id = urlParams.get('SESSION_ID') || 'unknown';
+
+            // ****************************************************
+            // Config: fill these in once you have real values
+            // ****************************************************
+            const DATAPIPE_EXPERIMENT_ID = "PGH139IF9EXO";
+            // Once your real Prolific study exists, replace this with the
+            // real Prolific completion URL (Settings > Study Completion Codes
+            // on Prolific, "Completed the study" code). Example format:
+            // https://app.prolific.com/submissions/complete?cc=YOUR_CODE_HERE
+            const PROLIFIC_COMPLETION_URL = "https://app.prolific.com/submissions/complete?cc=PLACEHOLDER_CODE";
+
+            // Experiment variables
+            var nItems            = 9
+            var nBlinkingItemsMin = 3  // unused here as the design is rigid
+            var nBlinkingItemsMax = 8  // unused here as the design is rigid
+
+            // Trial variables
+            var InterTrialDuration   = 100
+            var FixationDuration     = 400
+            var PreBlinkDuration     = 500
+            var PostBlinkDuration    = 500
+            var BlinkDuration        = 400
+            var InterBlinkDuration   = 400
+            var AcknowledgeDuration  = 200
+            var MouseToBeHidden      = true
+            var RecallSignal         = 'corsi-lib/500hz-400ms.wav'
+            var RecallSignalDuration = 400
+
+            // Item variables
+            var OneItemSize       = 1/10  // proportion of the item relative to minscreen
+            var OneItemMargin     = 1/50  // margin to leave empty around the item, relative to minscreen
+            // these two lines convert the size into pixels LEAVE UNCHANGED
+            var OneItemSizePX     = Math.floor(OneItemSize * Math.min(screen.width, screen.height))
+            var OneItemMarginPX   = Math.floor(OneItemMargin * Math.min(screen.width, screen.height))
+            console.log(`Dimensions in pixels are: (size) ${OneItemSizePX}, (margins) ${OneItemMarginPX}`);
+
+            var OneItemHTML       = `<svg width="${OneItemSizePX}" height="${OneItemSizePX}"><rect width="${OneItemSizePX}" height="${OneItemSizePX}" style="fill:rgb(0,0,0);stroke-width:0;" /></svg>`;
+            var OneItemBLANK      = `<svg width="${OneItemSizePX}" height="${OneItemSizePX}"><rect width="${OneItemSizePX}" height="${OneItemSizePX}" style="fill:rgb(0,255,0);stroke-width:0;" /></svg>`;
+            var OneItemACKNW      = `<svg width="${OneItemSizePX}" height="${OneItemSizePX}"><rect width="${OneItemSizePX}" height="${OneItemSizePX}" style="fill:rgb(126,126,126);stroke-width:0;" /></svg>`;
+
+            // Empty lists of items; are to be populated by PositionFunction
+            var ListOfItems         = new Array(nItems);
+            var ListOfBlinkingItems = new Array(nItems);
+            var ListOfButtons       = new Array(nItems);
+            var nBlinkingItems      = null;
+
+            // Function to generate non-contiguous positions randomly.
+            // This function can place the items anywhere on screen
+            // while leaving an empty margin around the items.
+            var PositionFunction = function() {
+                var i, j;
+                var x, y;
+                var tooclose = true;
+                ListOfButtons.length = 0;
+
+                for (i = 0; i < nItems; i++){
+                    tooclose = true;
+                    while(tooclose) {
+                        tooclose = false;
+                        x = Math.floor(OneItemMarginPX + Math.random() * (screen.width-OneItemSizePX-2*OneItemMarginPX) );
+                        y = Math.floor(OneItemMarginPX + Math.random() * (screen.height-OneItemSizePX-2*OneItemMarginPX) );
+                        for (j= 0; j <i; j++) {
+                            if ((x > ListOfItems[j].x - OneItemSizePX - OneItemMarginPX)&&
+                                (x < ListOfItems[j].x + OneItemSizePX + OneItemMarginPX)&&
+                                (y > ListOfItems[j].y - OneItemSizePX - OneItemMarginPX)&&
+                                (y < ListOfItems[j].y + OneItemSizePX + OneItemMarginPX)){
+                                tooclose = true;
+                            };
+                        };
+                    };
+                    ListOfItems[i] = [];
+                    ListOfItems[i].x = x;
+                    ListOfItems[i].y = y;
+                    ListOfItems[i].ItemHTML  = `<p style = "position:absolute; margin-top: 0em; left: ${x}px; top: ${y}px">${OneItemHTML} </p>`;
+                    ListOfItems[i].ItemBLANK = `<p style = "position:absolute; margin-top: 0em; left: ${x}px; top: ${y}px">${OneItemBLANK}</p>`;
+                    ListOfItems[i].ItemACKNW = `<p style = "position:absolute; margin-top: 0em; left: ${x}px; top: ${y}px">${OneItemACKNW}</p>`;
+                    ListOfButtons.push(`<button type=button style = "position:absolute; margin: 0px 0px; padding: 0px 0px; border: 0px; left: ${x}px; top: ${y}px">${OneItemHTML}</button>` );
+                    if (i< nBlinkingItems) {
+                        ListOfBlinkingItems[i] = [];
+                        ListOfBlinkingItems[i].x = x;
+                        ListOfBlinkingItems[i].y = y;
+                        ListOfBlinkingItems[i].ItemHTML  = `<p style = "position:absolute; margin-top: 0em; left: ${x}px; top: ${y}px">${OneItemHTML}</p>`;
+                        ListOfBlinkingItems[i].ItemBLANK = `<p style = "position:absolute; margin-top: 0em; left: ${x}px; top: ${y}px">${OneItemBLANK}</p>`;
+                    }
+                }
+            }
+            console.log('End of the definitions')
+
+            // ****************************************************
+            // Everything beyond this point runs from the definitions above
+            // ****************************************************
+
+            var HideMouse = function() { if (MouseToBeHidden) {
+                    document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="cursor-toggle"> html { cursor: none; } </style>');
+                }
+            }
+            var ShowMouse = function() { if (MouseToBeHidden) {
+                    document.querySelector('#cursor-toggle').remove();
+                }
+            }
+
+            // Toggle full screen on or off
+            var FullScreenOn = {
+                type: 'fullscreen',
+                message: "<p>The task will now switch to full-screen mode. Press the button below to begin.</p>",
+                button_label: 'Enter full screen',
+                fullscreen_mode: true
+            }
+            var FullScreenOff = {
+                type: 'fullscreen',
+                fullscreen_mode: false
+            }
+            var SayWelcome = {
+                type: 'html-keyboard-response',
+                stimulus: '<p style="font-size: 30px;">Welcome to this task.<br><br>Press the SPACE bar to begin.</p>',
+                choices: [' '],
+            }
+            var SayBye = {
+                type: 'html-keyboard-response',
+                stimulus: '<p style="font-size: 30px;">The task is finished.<br><br>Thank you for participating!<br><br>Press the SPACE bar to submit your data and continue.</p>',
+                choices: [' '],
+            }
+
+            // ****************************************************
+            // Defining one trial
+            // ****************************************************
+            var SetnBlinkingItems = {
+                type: 'call-function',
+                func: function() {
+                        nBlinkingItems =  jsPsych.timelineVariable("TrialCond", true);
+                        currentBlinkingItem = 0;
+                        currentResponse = 0;
+                    },
+            }
+            var GeneratePositions = {
+                type: 'call-function',
+                func: PositionFunction
+             }
+            var GatherResponses = {
+                type: 'call-function',
+                func: function() {
+                    var responses = jsPsych.data.get().filter({trial_type: 'html-button-response'}).last(nBlinkingItems).select('button_pressed').values.map(Number);
+                    var correct   = [...Array(nBlinkingItems).keys()];
+                    var acc       = responses.every(function(value, index) { return value === correct[index]});
+                    var rts       = jsPsych.data.get().filter({trial_type: 'html-button-response'}).last(nBlinkingItems).select('rt').values;
+                    console.log(responses, acc, rts);
+                }
+            }
+            var WaitInterTrialDuration = {
+                type: 'html-keyboard-response-noerase',
+                stimulus: '',
+                choices: jsPsych.NO_KEYS,
+                trial_duration: InterTrialDuration
+            }
+            var WaitBlinkDuration = {
+                type: 'html-keyboard-response-noerase',
+                stimulus: '',
+                choices: jsPsych.NO_KEYS,
+                trial_duration: BlinkDuration
+            }
+            var WaitInterBlinkDuration = {
+                type: 'html-keyboard-response-noerase',
+                stimulus: '',
+                choices: jsPsych.NO_KEYS,
+                trial_duration: InterBlinkDuration
+            }
+            var WaitPreBlinkDuration = {
+                type: 'html-keyboard-response-noerase',
+                stimulus: '',
+                choices: jsPsych.NO_KEYS,
+                trial_duration: PreBlinkDuration
+            }
+            var WaitPostBlinkDuration = {
+                type: 'html-keyboard-response-noerase',
+                stimulus: '',
+                choices: jsPsych.NO_KEYS,
+                trial_duration: PostBlinkDuration,
+            }
+            var ShowFixation = {
+                type: 'html-keyboard-response',
+                stimulus: '+',
+                choices: jsPsych.NO_KEYS,
+                trial_duration: FixationDuration,
+                on_start: HideMouse
+            }
+            var ShowOneItem = {
+                type: 'html-keyboard-response-noerase',
+                stimulus: jsPsych.timelineVariable('ItemHTML'),
+                choices: jsPsych.NO_KEYS,
+                trial_duration: 0
+            }
+            var ShowAllItems = {
+                timeline: [ ShowOneItem ],
+                timeline_variables: ListOfItems
+            }
+            var BlinkOneItem = {
+                type: 'html-keyboard-response-noerase',
+                stimulus: jsPsych.timelineVariable('ItemBLANK'),
+                choices: jsPsych.NO_KEYS,
+                trial_duration: 0,
+            }
+            var BlinkAllItems = {
+                timeline: [ BlinkOneItem, WaitBlinkDuration, ShowOneItem, WaitInterBlinkDuration ],
+                timeline_variables: ListOfBlinkingItems,
+                conditional_function: function() {if(currentBlinkingItem++ < nBlinkingItems) {return true;} else {return false;}}
+            }
+
+            var StartResponding = {
+                type: 'audio-keyboard-response',
+                stimulus: RecallSignal,
+                choices: jsPsych.NO_KEYS,
+                trial_duration: RecallSignalDuration,
+                on_start: ShowMouse
+            }
+            var ReadOneResponse = {
+                type: 'html-button-response',
+                stimulus: '',
+                button_html: ListOfButtons,
+                choices: function() {return [...Array(ListOfButtons.length).keys()] },
+                trial_duration: 5000
+            }
+            var BlinkThatResponse = {
+                type: 'audio-button-response',
+                stimulus: '',
+                button_html: function() {
+                                var choice = jsPsych.data.get().last(1).values()[0].button_pressed;
+                                if (choice !== null) {return ListOfButtons.concat(ListOfItems[choice].ItemACKNW);}
+                                else {return "";}
+                            },
+                trial_duration: AcknowledgeDuration,
+                choices: function() {return [...Array(ListOfButtons.length+1).keys()]}
+            }
+            var ReadAllResponses = {
+                timeline: [ ReadOneResponse, BlinkThatResponse ],
+                timeline_variables: ListOfBlinkingItems,
+                conditional_function: function() {if(currentResponse++ < nBlinkingItems) {return true;} else {return false;}}
+            }
+            var RunOneTrial = {
+                timeline: [ SetnBlinkingItems,
+                            GeneratePositions,
+                            WaitInterTrialDuration,
+                            ShowFixation,
+                            ShowAllItems,
+                            WaitPreBlinkDuration,
+                            BlinkAllItems,
+                            WaitPostBlinkDuration,
+                            StartResponding,
+                            ReadAllResponses,
+                            GatherResponses
+                        ],
+                timeline_variables: [{TrialCond: 3}, {TrialCond: 4}, {TrialCond: 5}, {TrialCond: 6}, {TrialCond: 7}, {TrialCond: 8}],
+                randomize_order: true,
+                repetitions: 4
+            }
+
+            jsPsych.init({
+                timeline: [ FullScreenOn, SayWelcome, RunOneTrial, FullScreenOff, SayBye ],
+                on_finish: function(){
+
+                    jsPsych.data.addProperties({
+                        prolific_pid: prolific_pid,
+                        study_id: study_id,
+                        session_id: session_id
+                    });
+
+                    let CSV = jsPsych.data.get().csv();
+
+                    function goToProlific() {
+                        window.location.href = PROLIFIC_COMPLETION_URL;
+                    }
+
+                    // Only save data when a real Prolific ID is present. Without one,
+                    // someone opened this page directly (not via Qualtrics/Prolific),
+                    // so skip creating a junk row in DataPipe/Google Drive.
+                    if (prolific_pid === "unknown") {
+                        console.warn("No PROLIFIC_PID found in URL — skipping DataPipe save.");
+                        goToProlific();
+                    } else {
+                        fetch("https://pipe.jspsych.org/api/data/", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                experimentID: DATAPIPE_EXPERIMENT_ID,
+                                filename: `${prolific_pid}_corsi_${Date.now()}.csv`,
+                                data: CSV
+                            })
+                        })
+                        .then(() => goToProlific())
+                        .catch((error) => {
+                            console.error("DataPipe save failed:", error);
+                            goToProlific();
+                        });
+                    }
+
+                }
+            })
+
+        </script>
+    </body>
+</html>
