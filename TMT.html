@@ -458,7 +458,13 @@ function shuffle(array) {
         },
         
         // Image data should be preloaded
-        preload_images: images, 
+        preload_images: images,
+
+        // The original template's timeline_variables structure trips up
+        // jsPsych 6.1's automatic audio/video scan (a pre-existing bug,
+        // not something we introduced). Disabling auto_preload skips that
+        // broken scan; images still display fine when each trial renders.
+        auto_preload: false, 
 
         // Attach the Prolific identifiers to every row of data
         on_finish: function(){
