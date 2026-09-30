@@ -443,6 +443,14 @@ function shuffle(array) {
         };
 
   
+    console.log('DEBUG images.length =', images.length);
+    console.log('DEBUG timelineVariables.length =', timelineVariables.length);
+    console.log('DEBUG timelineVariables[0] =', JSON.stringify(timelineVariables[0]));
+    console.log('DEBUG trial.timeline.length =', trial.timeline.length);
+    console.log('DEBUG trial.timeline[0].type =', trial.timeline[0] && trial.timeline[0].type);
+    console.log('DEBUG fullScreen.type =', fullScreen.type);
+    console.log('DEBUG greetings.type =', greetings.type);
+
     jsPsych.init({
         
         // timeline: [welcome_block,fullScreen,resize_trial, chin,instrucciones_posta,trial,greetings],
