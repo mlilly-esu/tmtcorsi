@@ -104,7 +104,8 @@ jsPsych.plugins["tmt-trial"] = (function () {
         // ---- Build the canvas ----
         display_element.innerHTML =
             '<canvas id="tmt-canvas" width="' + W + '" height="' + H +
-            '" style="background:#f5f5f5;border:1px solid #333;cursor:pointer;display:block;margin:20px auto;"></canvas>';
+            '" style="background:#ffffff;border:1px solid #e2e5ea;border-radius:14px;' +
+            'box-shadow:0 4px 20px rgba(0,0,0,0.08);cursor:pointer;display:block;margin:30px auto;"></canvas>';
 
         var canvas = document.getElementById('tmt-canvas');
         var ctx = canvas.getContext('2d');
@@ -120,7 +121,7 @@ jsPsych.plugins["tmt-trial"] = (function () {
             ctx.clearRect(0, 0, W, H);
 
             // completed connecting lines
-            ctx.strokeStyle = '#2e7d32';
+            ctx.strokeStyle = '#2563eb';
             ctx.lineWidth = 3;
             segments.forEach(function (s) {
                 ctx.beginPath();
@@ -133,13 +134,13 @@ jsPsych.plugins["tmt-trial"] = (function () {
             circles.forEach(function (c, idx) {
                 ctx.beginPath();
                 ctx.arc(c.x, c.y, radius, 0, 2 * Math.PI);
-                ctx.fillStyle = c.visited ? '#c8e6c9' : (flashCircle === idx ? '#ffcdd2' : '#ffffff');
+                ctx.fillStyle = c.visited ? '#dbeafe' : (flashCircle === idx ? '#fecaca' : '#ffffff');
                 ctx.fill();
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = '#000000';
+                ctx.strokeStyle = '#14213d';
                 ctx.stroke();
-                ctx.fillStyle = '#000000';
-                ctx.font = 'bold 18px sans-serif';
+                ctx.fillStyle = '#14213d';
+                ctx.font = 'bold 18px -apple-system, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(c.label, c.x, c.y);
