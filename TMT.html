@@ -11,6 +11,78 @@
     <script src="jspsych/plugins/jspsych-instructions_modified.js"></script>
     <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="jspsych/plugins/jspsych-tmt-trial.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #f2f4f7;
+            margin: 0;
+            color: #1d1d1f;
+        }
+
+        .jspsych-display-element {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tmt-card {
+            max-width: 680px;
+            margin: 40px auto;
+            padding: 40px 48px;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        .tmt-card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #14213d;
+        }
+
+        .tmt-card p {
+            font-size: 18px;
+            margin: 0 0 16px;
+        }
+
+        .tmt-card p.tmt-emphasis {
+            font-weight: 600;
+            color: #14213d;
+        }
+
+        .jspsych-btn, .jspsych-fullscreen button, #jspsych-fullscreen-btn {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 28px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .jspsych-btn:hover {
+            background: #1d4fd1;
+        }
+
+        .jspsych-instructions-nav {
+            margin-top: 24px;
+        }
+
+        .jspsych-instructions-pagenum {
+            font-size: 15px;
+            color: #6b7280;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body></body>
 <script>
@@ -42,7 +114,11 @@ window.onkeydown = function (e) {
 var fullscreenTrial = {
     type: 'fullscreen',
     fullscreen_mode: true,
-    message: '<p>The experiment will go fullscreen when you press the button below.</p><br>',
+    message: `<div class="tmt-card">
+        <h2>Before you begin</h2>
+        <p>This task works best in fullscreen mode.</p>
+        <p>Click the button below to continue.</p>
+    </div>`,
     button_label: 'Continue to fullscreen'
 };
 
@@ -50,12 +126,13 @@ var fullscreenTrial = {
 var instructions_partA = {
     type: 'instructions',
     pages: [
-        `<p style='font-size:150%;color:black'>
-         In this task you will see numbered circles scattered on the screen.<br><br>
-         Click the circles in order, starting with 1, then 2, then 3, and so on,<br>
-         connecting them in a continuous path as you go.<br><br>
-         Work as quickly and accurately as you can.<br><br>
-         Press Next when you're ready to begin.</p>`
+        `<div class="tmt-card">
+            <h2>Part A</h2>
+            <p>You will see numbered circles scattered on the screen.</p>
+            <p class="tmt-emphasis">Click the circles in order: 1, 2, 3, and so on.</p>
+            <p>Work as quickly and accurately as you can.</p>
+            <p>Press Next when you're ready to begin.</p>
+        </div>`
     ],
     show_clickable_nav: true,
     button_label_previous: 'Previous',
@@ -64,7 +141,7 @@ var instructions_partA = {
 
 var fixation_partA = {
     type: 'html-keyboard-response',
-    stimulus: '<p style="font-size:60px;">+</p>',
+    stimulus: '<p style="font-size:60px;color:#1d1d1f;">+</p>',
     choices: jsPsych.NO_KEYS,
     trial_duration: 1000
 };
@@ -82,12 +159,13 @@ var trial_partA = {
 var instructions_partB = {
     type: 'instructions',
     pages: [
-        `<p style='font-size:150%;color:black'>
-         Now you will see circles with both numbers (1–10) and letters (A–J).<br><br>
-         Click them in alternating order: 1, A, 2, B, 3, C, and so on,<br>
-         connecting them in a continuous path as you go.<br><br>
-         Work as quickly and accurately as you can.<br><br>
-         Press Next when you're ready to begin.</p>`
+        `<div class="tmt-card">
+            <h2>Part B</h2>
+            <p>Now you will see circles with both numbers (1–10) and letters (A–J).</p>
+            <p class="tmt-emphasis">Click them in alternating order: 1, A, 2, B, 3, C, and so on.</p>
+            <p>Work as quickly and accurately as you can.</p>
+            <p>Press Next when you're ready to begin.</p>
+        </div>`
     ],
     show_clickable_nav: true,
     button_label_previous: 'Previous',
@@ -96,7 +174,7 @@ var instructions_partB = {
 
 var fixation_partB = {
     type: 'html-keyboard-response',
-    stimulus: '<p style="font-size:60px;">+</p>',
+    stimulus: '<p style="font-size:60px;color:#1d1d1f;">+</p>',
     choices: jsPsych.NO_KEYS,
     trial_duration: 1000
 };
@@ -115,7 +193,12 @@ var trial_partB = {
 
 var greetings = {
     type: "html-keyboard-response",
-    stimulus: '<p style="font-size: 40px;">The task is finished.<br><br>Thank you for participating!<br><br>Press any key to submit your data and continue.</p>'
+    stimulus: `<div class="tmt-card">
+        <h2>You're all set</h2>
+        <p>This part of the study is complete.</p>
+        <p>Thank you for participating!</p>
+        <p>Press any key to continue.</p>
+    </div>`
 };
 
 jsPsych.init({
