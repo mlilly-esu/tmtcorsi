@@ -222,7 +222,8 @@ jsPsych.init({
             session_id: session_id
         });
 
-        let CSV = jsPsych.data.get().csv();
+        // Save only the real task trials (no fullscreen/instruction/fixation rows)
+        let CSV = jsPsych.data.get().filter({trial_type: 'tmt-trial'}).ignore('internal_node_id').csv();
 
         function goToCorsi() {
             var separator = CORSI_REDIRECT_URL.indexOf("?") === -1 ? "?" : "&";

@@ -198,7 +198,8 @@ jsPsych.init({
             corsi_span_score: corsiSpanScore
         });
 
-        let CSV = jsPsych.data.get().csv();
+        // Save only the real task trials (no fullscreen/instruction/fixation rows)
+        let CSV = jsPsych.data.get().filter({trial_type: 'corsi-trial'}).ignore('internal_node_id').csv();
 
         function goToProlific() {
             window.location.href = PROLIFIC_COMPLETION_URL;
