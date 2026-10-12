@@ -8,7 +8,6 @@
     <script src="corsi-lib/jspsych.js"></script>
     <script src="corsi-lib/plugins/jspsych-fullscreen.js"></script>
     <script src="corsi-lib/plugins/jspsych-html-keyboard-response.js"></script>
-    <script src="corsi-lib/plugins/jspsych-instructions_modified.js"></script>
     <script src="corsi-lib/plugins/jspsych-corsi-trial.js"></script>
 
     <style>
@@ -126,20 +125,15 @@ var FullScreenOn = {
 };
 
 var instructions = {
-    type: 'instructions',
-    pages: [
-        `<div class="tmt-card">
-            <h2>Instructions</h2>
-            <p>You will see a board of squares.</p>
-            <p>A few squares will light up one at a time — watch closely.</p>
-            <p class="tmt-emphasis">After they finish, click the squares in the same order they lit up.</p>
-            <p>The sequence starts short and gets longer as you go.</p>
-            <p>Press Next when you're ready to begin.</p>
-        </div>`
-    ],
-    show_clickable_nav: true,
-    button_label_previous: 'Previous',
-    button_label_next: 'Next'
+    type: 'html-button-response',
+    stimulus: `<div class="tmt-card">
+        <h2>Instructions</h2>
+        <p>You will see a board of squares.</p>
+        <p>A few squares will light up one at a time — watch closely.</p>
+        <p class="tmt-emphasis">After they finish, click the squares in the same order they lit up.</p>
+        <p>The sequence starts short and gets longer as you go.</p>
+    </div>`,
+    choices: ['Begin']
 };
 
 var fixation = {
