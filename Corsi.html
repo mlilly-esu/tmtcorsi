@@ -153,25 +153,25 @@ var corsi_trial = {
     }
 };
 
-// Two trials at the current span length
+// Three trials at the current span length
 var span_block = {
     timeline: [fixation, corsi_trial],
-    repetitions: 2
+    repetitions: 3
 };
 
 // Keep testing increasing spans as long as the participant passes
-// (at least 1 of 2 trials correct) at each span level.
+// (at least 2 of 3 trials correct) at each span level.
 var corsi_loop = {
     timeline: [span_block],
     loop_function: function () {
-        if (trialsCorrectAtSpan >= 1) {
+        if (trialsCorrectAtSpan >= 2) {
             corsiSpanScore = currentSpan;
             currentSpan++;
             trialsCorrectAtSpan = 0;
             if (currentSpan > maxSpan) return false; // reached the ceiling
             return true; // test the next, longer span
         } else {
-            return false; // failed both trials at this span — stop here
+            return false; // failed this span (fewer than 2 of 3 correct) — stop here
         }
     }
 };
