@@ -28,12 +28,12 @@ jsPsych.plugins["corsi-trial"] = (function () {
             num_items: {
                 type: jsPsych.plugins.parameterType.INT,
                 pretty_name: "Number of squares",
-                default: 7
+                default: 9
             },
             item_size: {
                 type: jsPsych.plugins.parameterType.INT,
                 pretty_name: "Square size",
-                default: 54
+                default: 80
             },
             min_distance: {
                 type: jsPsych.plugins.parameterType.INT,
@@ -43,12 +43,12 @@ jsPsych.plugins["corsi-trial"] = (function () {
             canvas_width: {
                 type: jsPsych.plugins.parameterType.INT,
                 pretty_name: "Canvas width",
-                default: 650
+                default: 640
             },
             canvas_height: {
                 type: jsPsych.plugins.parameterType.INT,
                 pretty_name: "Canvas height",
-                default: 450
+                default: 500
             },
             highlight_duration: {
                 type: jsPsych.plugins.parameterType.INT,
@@ -71,6 +71,7 @@ jsPsych.plugins["corsi-trial"] = (function () {
 
     plugin.trial = function (display_element, trial) {
 
+        var PX_PER_MM = 2;
         var size = trial.item_size;
         var minDist = trial.min_distance;
         var W = trial.canvas_width;
@@ -78,29 +79,16 @@ jsPsych.plugins["corsi-trial"] = (function () {
         var n = trial.num_items;
         var span = trial.span;
 
-        // ---- Generate random, non-overlapping square positions ----
+        // ---- Fixed board layout (mm on a 320 x 250 mm board, 2 px per mm) ----
+        // Nine cubes of 40 mm placed in a fixed, irregular arrangement.
+        var LAYOUT_MM = [
+            [60, 45], [150, 30], [265, 60],
+            [110, 95], [215, 120], [45, 150],
+            [160, 175], [270, 195], [85, 215]
+        ];
         var squares = [];
-        var padding = size / 2 + 20;
-        for (var i = 0; i < n; i++) {
-            var placed = false;
-            var attempts = 0;
-            var x, y;
-            while (!placed && attempts < 2000) {
-                x = padding + Math.random() * (W - 2 * padding);
-                y = padding + Math.random() * (H - 2 * padding);
-                var ok = true;
-                for (var j = 0; j < squares.length; j++) {
-                    var dx = x - squares[j].x;
-                    var dy = y - squares[j].y;
-                    if (Math.sqrt(dx * dx + dy * dy) < minDist) {
-                        ok = false;
-                        break;
-                    }
-                }
-                if (ok) placed = true;
-                attempts++;
-            }
-            squares.push({ x: x, y: y });
+        for (var i = 0; i < n && i < LAYOUT_MM.length; i++) {
+            squares.push({ x: LAYOUT_MM[i][0] * PX_PER_MM, y: LAYOUT_MM[i][1] * PX_PER_MM });
         }
 
         // ---- Pick a random sequence of `span` distinct squares ----
