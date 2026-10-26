@@ -191,15 +191,15 @@ jsPsych.init({
 
     on_finish: function () {
 
-        jsPsych.data.addProperties({
-            prolific_pid: prolific_pid,
-            study_id: study_id,
-            session_id: session_id,
-            corsi_span_score: corsiSpanScore
-        });
-
-        // Save only the real task trials (no fullscreen/instruction/fixation rows)
-        let CSV = jsPsych.data.get().filter({trial_type: 'corsi-trial'}).ignore('internal_node_id').csv();
+        // Build ONE summary row per participant
+        var trials = jsPsych.data.get().filter({trial_type: 'corsi-trial'}).values();
+        var correctCount = trials.filter(function (t) { return t.correct === true; }).length;
+        function csvCell(v) {
+            return '"' + String(v).replace(/"/g, '""') + '"';
+        }
+        var header = ["prolific_pid", "corsi_span_score", "total_correct_trials", "total_trials"];
+        var values = [prolific_pid, corsiSpanScore, correctCount, trials.length];
+        let CSV = header.map(csvCell).join(",") + "\r\n" + values.map(csvCell).join(",");
 
         function goToProlific() {
             window.location.href = PROLIFIC_COMPLETION_URL;

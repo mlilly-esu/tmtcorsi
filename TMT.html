@@ -216,14 +216,26 @@ jsPsych.init({
     // Attach the Prolific identifiers to every row of data
     on_finish: function () {
 
-        jsPsych.data.addProperties({
-            prolific_pid: prolific_pid,
-            study_id: study_id,
-            session_id: session_id
-        });
-
-        // Save only the real task trials (no fullscreen/instruction/fixation rows)
-        let CSV = jsPsych.data.get().filter({trial_type: 'tmt-trial'}).ignore('internal_node_id').csv();
+        // Build ONE summary row per participant:
+        // prolific_pid, part A time/errors, part B time/errors
+        function partData(label) {
+            var rows = jsPsych.data.get().filter({trial_type: 'tmt-trial', part: label}).values();
+            return rows.length ? rows[0] : null;
+        }
+        function seconds(row) {
+            return row ? (row.total_time_ms / 1000).toFixed(2) : "";
+        }
+        function errs(row) {
+            return row ? row.errors : "";
+        }
+        function csvCell(v) {
+            return '"' + String(v).replace(/"/g, '""') + '"';
+        }
+        var rowA = partData('A');
+        var rowB = partData('B');
+        var header = ["prolific_pid", "part_a_time_sec", "part_a_errors", "part_b_time_sec", "part_b_errors"];
+        var values = [prolific_pid, seconds(rowA), errs(rowA), seconds(rowB), errs(rowB)];
+        let CSV = header.map(csvCell).join(",") + "\r\n" + values.map(csvCell).join(",");
 
         function goToCorsi() {
             var separator = CORSI_REDIRECT_URL.indexOf("?") === -1 ? "?" : "&";
